@@ -8,8 +8,7 @@ class PBXAdaptixCall:
     def __init__(self, pool: ConnectionPool):
         self.pool = pool
 
-    @staticmethod
-    def get_duracion_seg(duracion: str) -> str:
+    def __get_duracion_seg(self, duracion: str) -> str:
         if duracion == "":
             return "0"
         try:
@@ -18,8 +17,7 @@ class PBXAdaptixCall:
             raise ValueError(f"Error extracting duration in seconds from '{duracion}': {e}")
         return dseg
     
-    @staticmethod
-    def get_extension(destino: str) -> str:
+    def __get_extension(self, destino: str) -> str:
         if destino == "":
             return ""
         try:
@@ -28,7 +26,7 @@ class PBXAdaptixCall:
             raise ValueError(f"Error extracting extension from destino '{destino}': {e}")
         return ext
 
-    def insert_bulk_to_db(self, conn, process_id: str, df: pd.DataFrame) -> int:
+    def __insert_bulk_to_db(self, conn, process_id: str, df: pd.DataFrame) -> int:
         """
         Insert data into the database using a connection.
         """
@@ -41,8 +39,8 @@ class PBXAdaptixCall:
                 for row in df.itertuples():
                     
                     # Get the extension and duration in seconds from the row data
-                    extension = self.get_extension(str(row[6]))
-                    duracion_seg = self.get_duracion_seg(str(row[8]))
+                    extension = self.__get_extension(str(row[6]))
+                    duracion_seg = self.__get_duracion_seg(str(row[8]))
 
                     # Prepare the SQL statement with the row data
                     sql_statement = (
@@ -78,7 +76,7 @@ class PBXAdaptixCall:
         
         # Insert data into the database
         try:
-            self.insert_bulk_to_db(conn=conn, df=df, process_id=process_id)
+            self.__insert_bulk_to_db(conn=conn, df=df, process_id=process_id)
         except Exception as e:
             raise ValueError(f"Error inserting data into the database: {e}")
         finally:
