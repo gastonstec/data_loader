@@ -1,32 +1,41 @@
-import csv
+from loguru import logger
 import pandas as pd
+from psycopg_pool import ConnectionPool
+import uuid
+from models import PBXAdaptixCall
 
-# "fecha" 0,"caller_id" 1,"grupo_timbrado" 2,"destino" 3,"canal_origen" 4,
-# "codigo_cuenta" 5,"canal_destino" 6,"estado" 7,"duracion" 8,
-# "duracion_seg" 9, extension 10
-# "fecha", "caller_id", "grupo_timbrado", "destino", "canal_origen", "codigo_cuenta", "canal_destino", "estado", "duracion"
+# Service for loading PBX calls data from CSV files into a PostgreSQL database
+class PBXAdaptixService:
 
-def get_duracion_seg(duracion: str):
-    return duracion[:duracion.find("s")]
+    # Load csv file with PBX calls
+    def pbx_calls_load_csv(self, uri:str):
+        logger.info(r"Loading PBX data from file: {}".format(uri))
+        try:
+            df = pd.read_csv(filepath_or_buffer=uri, encoding='utf-8', low_memory=False)
+        except Exception as e:
+            raise ValueError(e)
+        return df
+    
+    def pbx_calls_load(self, pool:ConnectionPool, process_id: str, uri:str):
+        # Load PBX data from CSV file
+        try:
+            df = self.pbx_calls_load_csv(uri)
+        except Exception as e:
+            logger.error("Error loading PBX data from CSV file: {}".format(e))
+            raise ValueError(e)
+        
+        # Calculate the number of rows in the DataFrame
+        num_rows = len(df)
+        logger.info("Number of rows to be loaded: {}".format(num_rows))
+        try:
+            pbxModel = PBXAdaptixCall(pool=pool)
+            pbxModel.insert_bulk(df=df, process_id=process_id)
+        except Exception as e:
+            logger.error("Error getting connection from pool: {}".format(e))
+            raise ValueError(e)
+        logger.info("Connection obtained from pool")
 
-def get_extension(destino: str):
-    return destino[destino.find("/"):destino.find("-")]
-
-def pbx_load_data(filepath: str):
-    print(r"Loading PBX data from file: {}".format(filepath))
-    df = pd.read_csv(filepath)
-    df = df.rename(columns={
-        "fecha": "fecha",
-        "caller_id": "caller_id",
-        "grupo_timbrado": "grupo_timbrado",
-        "destino": "destino",
-        "canal_origen": "canal_origen",
-        "codigo_cuenta": "codigo_cuenta",
-        "canal_destino": "canal_destino",
-        "estado": "estado",
-        "duracion": "duracion"
-    })
-    for row in df.itertuples():
-        print(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
-              
-pbx_load_data("d:\datospbx\CDRReport-202411-202505.csv")
+        # Return processed DataFrame
+        del df
+        print("Number of rows loaded: {}".format(num_rows))
+        return num_rows
