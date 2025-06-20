@@ -14,7 +14,7 @@ class PoolSettings:
         self.timeout:float = timeout
 
 # Test connection to the database
-def test_connection(pool: ConnectionPool):
+def test_connection(pool: ConnectionPool) -> str:
     # Check connection
     try:
         # Test connection by executing a simple query
@@ -34,7 +34,7 @@ def test_connection(pool: ConnectionPool):
     return dbversion
 
 # Create a connection pool
-def connect(settings: PoolSettings):    
+def connect(settings: PoolSettings) -> tuple[ConnectionPool, str]:    
     # Check pool settings
     if settings.min_size < 0 or settings.max_size < 0 or settings.timeout < 0:
         raise ValueError("Pool settings must be non-negative")
