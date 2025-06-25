@@ -21,7 +21,7 @@ class AppSettings:
 class DBSettings:
     user: str = "postgres"
     password: str = "c4rec4"
-    host: str = "localhost"
+    host: str = "147.182.190.223"
     port: int = 5432
     dbname: str = "gtim_services"
     appname: str = "DATA LOADER"

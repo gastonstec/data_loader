@@ -1,4 +1,6 @@
 from psycopg_pool import ConnectionPool
+from psycopg import Connection
+from psycopg.rows import TupleRow
 
 class PoolSettings:
     def __init__(self, user: str, password: str, host: str, port: int, dbname: str, \
@@ -13,9 +15,9 @@ class PoolSettings:
         self.max_size:int = max_size
         self.timeout:float = timeout
 
-# Test connection to the database
-def test_connection(pool: ConnectionPool) -> str:
+def test_connection(pool: ConnectionPool[Connection[TupleRow]]) -> str:
     # Check connection
+    # conn: Connection[TupleRow] = None
     try:
         # Test connection by executing a simple query
         conn = pool.getconn()  # Get a connection from the pool
@@ -29,12 +31,12 @@ def test_connection(pool: ConnectionPool) -> str:
         # Return connection to pool
         pool.putconn(conn)
     except Exception as e:
-        conn.rollback() # Rollback in case of error
         raise ValueError(e)
-    return dbversion
+   
+    return str(dbversion)
 
-# Create a connection pool
-def connect(settings: PoolSettings) -> tuple[ConnectionPool, str]:    
+
+def connect(settings: PoolSettings) -> ConnectionPool[Connection[TupleRow]]:
     # Check pool settings
     if settings.min_size < 0 or settings.max_size < 0 or settings.timeout < 0:
         raise ValueError("Pool settings must be non-negative")
@@ -57,12 +59,12 @@ def connect(settings: PoolSettings) -> tuple[ConnectionPool, str]:
         f"application_name='{settings.appname}'"
     
     # Create pool 
-    pool = ConnectionPool(conninfo=connstr, min_size=settings.min_size, max_size=settings.max_size, timeout=settings.timeout)
-
-    db_version = test_connection(pool)
-    
+    pool: ConnectionPool[Connection[TupleRow]] = \
+        ConnectionPool(conninfo=connstr, min_size=settings.min_size, max_size=settings.max_size, timeout=settings.timeout)
+  
     # Return ConnectionPool
-    return pool, db_version
+    return pool
+
 
 # Close pool
 def close(pool: ConnectionPool):

@@ -26,7 +26,7 @@ class PBXAdaptixCall:
             raise ValueError(f"Error extracting extension from destino '{destino}': {e}")
         return ext
 
-    def __insert_bulk_to_db(self, conn, process_id: str, df: pd.DataFrame) -> int:
+    def __insert_bulk_to_db(self, conn, process_id: str, df: pd.DataFrame):
         """
         Insert data into the database using a connection.
         """
@@ -53,7 +53,9 @@ class PBXAdaptixCall:
                         cursor.execute(sql_statement)
                     except Exception as e:
                         raise ValueError(f"Error executing SQL statement: {e}")
-
+        # Commit the transaction
+        conn.commit()
+        # Log the successful insertion
         print(f"Data inserted successfully for process_id: {process_id}")
 
     # Insert PBX calls data into the database.
