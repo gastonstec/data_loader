@@ -28,6 +28,7 @@ class DBSettings:
     min_size: int = 3
     max_size: int = 15
     timeout: int = 30
+    time_offset: str = "-06:00:00"
 
 
 

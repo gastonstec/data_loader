@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 from psycopg_pool import ConnectionPool
 import pandas as pd
+from config import DBSettings
 
-TIMEZONE:str = "America/Mexico_City"
+DEFAULT_TIMEZONE_OFFSET:str = "-06:00:00"
 
 class PBXAdaptixCall:
     def __init__(self, pool: ConnectionPool):
@@ -33,9 +34,12 @@ class PBXAdaptixCall:
         if conn is None:
             raise ValueError("Connection is None. Cannot insert data.")
         
+        # offset for the timezone
+        offset = DBSettings.time_offset if hasattr(DBSettings, 'time_offset') else DEFAULT_TIMEZONE_OFFSET
+        
         with conn.transaction():
             with conn.cursor() as cursor:
-                cursor.execute(f"SET TIMEZONE TO '{TIMEZONE}'")
+                # cursor.execute(f"SET TIMEZONE TO '{TIMEZONE}'")
                 for row in df.itertuples():
                     
                     # Get the extension and duration in seconds from the row data
@@ -45,7 +49,7 @@ class PBXAdaptixCall:
                     # Prepare the SQL statement with the row data
                     sql_statement = (
                         f"INSERT INTO gtim_pbx_adaptix_calls (process_id,fecha,caller_id,grupo_timbrado,destino,canal_origen,codigo_cuenta,canal_destino,estado,duracion,duracion_seg,extension) "
-                        f"VALUES ('{process_id}','{row[0]}','{row[1]}','{row[2]}','{row[3]}','{row[4]}','{row[5]}','{row[6]}','{row[7]}','{row[8]}',{duracion_seg},'{extension}')"
+                        f"VALUES ('{process_id}','{row[0]}{offset}','{row[1]}','{row[2]}','{row[3]}','{row[4]}','{row[5]}','{row[6]}','{row[7]}','{row[8]}',{duracion_seg},'{extension}')"
                     )
                     
                     # Execute the SQL statement
