@@ -35,11 +35,10 @@ class PBXAdaptixCall:
             raise ValueError("Connection is None. Cannot insert data.")
         
         # offset for the timezone
-        offset = DBSettings.time_offset if hasattr(DBSettings, 'time_offset') else DEFAULT_TIMEZONE_OFFSET
+        offset = DBSettings.timezone_offset if hasattr(DBSettings, 'timezone_offset') else DEFAULT_TIMEZONE_OFFSET
         
         with conn.transaction():
             with conn.cursor() as cursor:
-                # cursor.execute(f"SET TIMEZONE TO '{TIMEZONE}'")
                 for row in df.itertuples():
                     
                     # Get the extension and duration in seconds from the row data
