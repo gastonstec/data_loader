@@ -1,0 +1,10 @@
+loguru==0.7.3
+numpy==2.3.2
+pandas==2.3.2
+psycopg==3.2.9
+psycopg-binary==3.2.9
+python-dateutil==2.9.0.post0
+pytz==2025.2
+six==1.17.0
+tzdata==2025.2
+uuid==1.30

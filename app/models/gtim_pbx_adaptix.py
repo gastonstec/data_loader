@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from psycopg_pool import ConnectionPool
 import pandas as pd
-from config import DBSettings
+from core import DBSettings
 
 DEFAULT_TIMEZONE_OFFSET:str = "-06:00:00"
 

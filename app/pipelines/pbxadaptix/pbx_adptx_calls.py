@@ -1,8 +1,8 @@
 from loguru import logger
 import pandas as pd
 from psycopg_pool import ConnectionPool
-import uuid
 from models import PBXAdaptixCall
+
 
 # Service for loading PBX calls data from CSV files into a PostgreSQL database
 class PBXAdaptixService:
@@ -11,12 +11,16 @@ class PBXAdaptixService:
     def pbx_calls_load_csv(self, uri:str):
         logger.info(r"Loading PBX data from file: {}".format(uri))
         try:
-            df = pd.read_csv(filepath_or_buffer=uri, encoding='utf-8', low_memory=False)
+            df = pd.read_csv(
+                filepath_or_buffer=uri,
+                encoding='utf-8',
+                low_memory=False
+            )
         except Exception as e:
             raise ValueError(e)
         return df
-    
-    def pbx_calls_load(self, pool:ConnectionPool, process_id: str, uri:str):
+
+    def pbx_calls_load(self, pool: ConnectionPool, process_id: str, uri: str):
         # Load PBX data from CSV file
         try:
             df = self.pbx_calls_load_csv(uri)

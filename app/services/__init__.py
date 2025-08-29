@@ -2,4 +2,4 @@
 PACKAGE_VERSION = "1.0.0"
 
 ## Control imports
-from .pbx_adptx_calls import PBXAdaptixService
+from ..pipelines.pbxadaptix.pbx_adptx_calls import PBXAdaptixService
