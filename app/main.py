@@ -1,15 +1,23 @@
 import os
 import time
+import sys
 from loguru import logger
 from core.config import AppSettings, EnvSettings
 from db import open_db_pool, close_db_pool
+import duckdb
+from pipelines import router as pipelines_router
+
+# Add project root to sys.path
+sys.path.append('/Users/gastonsanchez/Documents/repos/data_loader/app')
+
 
 # Configure logger
-if not EnvSettings.env == "dev":
+if EnvSettings.env != "dev":
     logger.add(
         f"{AppSettings.app_folder}/{AppSettings.name}.log",
         rotation="10 MB"
     )
+
 
 # Create database connection pool
 try:
@@ -17,6 +25,28 @@ try:
 except Exception as e:
     logger.error(f"Error creating database connection pool: {e}")
     print(f"Error creating database connection pool: {e}")
+    os._exit(1)
+
+
+def get_duckdb_version() -> str | None:
+    try:
+        results = duckdb_conn.execute("SELECT version();")
+        return str(results.fetchone())
+    except Exception as e:
+        logger.error(f"Error getting DuckDB version: {e}")
+        print(f"Error getting DuckDB version: {e}")
+        return None
+
+
+# Create duckdb connection
+try:
+    duckdb_conn = duckdb.connect(database=':memory:')
+    logger.info(
+        f"DuckDB connection created successfully: {get_duckdb_version()}"
+    )
+except Exception as e:
+    logger.error(f"Error creating DuckDB connection: {e}")
+    print(f"Error creating DuckDB connection: {e}")
     os._exit(1)
 
 
@@ -30,7 +60,8 @@ def start_program() -> bool:
 def stop_program() -> bool:
     # Close database connection pool
     try:
-        close_db_pool(db_pool)
+        # close_db_pool(db_pool)
+        duckdb_conn.close()
         logger.info(f"{AppSettings.name} database connection pool closed")
     except Exception as e:
         logger.error(f"Error closing database connection pool: {e}")
@@ -56,8 +87,12 @@ def main_program():
             )
             # Your actual daemon work here
             # Simulate some work
-            print("Simulating work...")
-            time.sleep(2)
+            pipelines_router.start(
+                base_folder=AppSettings.app_folder,
+                db_pool=db_pool,
+                duckdb_conn=duckdb_conn
+            )
+            time.sleep(3)
     except KeyboardInterrupt:
         print(f"{AppSettings.name} received stop signal")
         logger.info(f"{AppSettings.name} received stop signal")
@@ -68,6 +103,7 @@ def main_program():
     # Stop section
     try:
         # Close the database connection pool
+        close_db_pool(db_pool)
         if not stop_program():
             logger.error(
                 f"{AppSettings.name} encountered an error during shutdown"
