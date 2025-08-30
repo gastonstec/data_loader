@@ -1,13 +1,13 @@
 import os
 import time
-import sys
 from loguru import logger
 from core.config import AppSettings, EnvSettings
-from db import open_db_pool, close_db_pool
+from core.database import DBConnectionPool
+from dbpool import open_db_pool, close_db_pool
 import duckdb
-from pipelines import router as pipelines_router
+from pipelines import router as pipelines
 
-# Add project root to sys.path
+import sys
 sys.path.append('/Users/gastonsanchez/Documents/repos/data_loader/app')
 
 
@@ -19,7 +19,8 @@ if EnvSettings.env != "dev":
     )
 
 
-# Create database connection pool
+# Open database connection pool
+db_pool: DBConnectionPool
 try:
     db_pool = open_db_pool()
 except Exception as e:
@@ -27,22 +28,12 @@ except Exception as e:
     print(f"Error creating database connection pool: {e}")
     os._exit(1)
 
-
-def get_duckdb_version() -> str | None:
-    try:
-        results = duckdb_conn.execute("SELECT version();")
-        return str(results.fetchone())
-    except Exception as e:
-        logger.error(f"Error getting DuckDB version: {e}")
-        print(f"Error getting DuckDB version: {e}")
-        return None
-
-
-# Create duckdb connection
+# Open duckdb connection
+duckdb_conn: duckdb.DuckDBPyConnection
 try:
     duckdb_conn = duckdb.connect(database=':memory:')
     logger.info(
-        f"DuckDB connection created successfully: {get_duckdb_version()}"
+        "DuckDB connection created successfully"
     )
 except Exception as e:
     logger.error(f"Error creating DuckDB connection: {e}")
@@ -71,12 +62,8 @@ def stop_program() -> bool:
 
 
 # Main program loop
-def main_program():
+def main_program_loop():
     # Start section
-    if not start_program():
-        logger.error(f"{AppSettings.name} failed to start")
-        return
-
     # Start application loop
     try:
         counter = 0
@@ -87,7 +74,7 @@ def main_program():
             )
             # Your actual daemon work here
             # Simulate some work
-            pipelines_router.start(
+            pipelines.start(
                 base_folder=AppSettings.app_folder,
                 db_pool=db_pool,
                 duckdb_conn=duckdb_conn
@@ -99,7 +86,7 @@ def main_program():
     except Exception as e:
         print(f"Unexpected error: {e}")
         logger.error(f"Unexpected error: {e}")
-
+    # End application loop
     # Stop section
     try:
         # Close the database connection pool
@@ -116,7 +103,7 @@ def main_program():
 
 # Main program entry point
 def main():
-    main_program()
+    main_program_loop()
 
 
 # Start the main program

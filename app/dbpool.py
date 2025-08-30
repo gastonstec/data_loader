@@ -55,3 +55,14 @@ def close_db_pool(db_pool=None):
         db_pool.close(DBSettings.timeout_conn)
     except Exception as e:
         logger.error(f"Error closing the database connection: {e}")
+
+
+# Get DuckDB version
+def get_duckdb_version(duckdb_conn) -> str | None:
+    try:
+        results = duckdb_conn.execute("SELECT version();")
+        return str(results.fetchone())
+    except Exception as e:
+        logger.error(f"Error getting DuckDB version: {e}")
+        print(f"Error getting DuckDB version: {e}")
+        return None
