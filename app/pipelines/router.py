@@ -8,26 +8,21 @@ pipelines_list = [
 
 
 # Function to execute all pipelines
-def execute_pipelines(base_folder, db_pool, duckdb_conn):
+def execute_pipelines(base_folder, db_pool):
     logger.info("Start pipelines")
     try:
         for pipeline in pipelines_list:
             pipeline.start(
                 base_folder=base_folder,
-                db_pool=db_pool,
-                duckdb_conn=duckdb_conn
+                db_pool=db_pool
             )
     except Exception as e:
         logger.error(f"Error executing pipelines: {e}")
 
 
 # Start the pipeline
-def start(base_folder, db_pool, duckdb_conn):
+def start(base_folder, db_pool):
     try:
-        execute_pipelines(
-            base_folder=base_folder,
-            db_pool=db_pool,
-            duckdb_conn=duckdb_conn
-        )
+        execute_pipelines(base_folder=base_folder, db_pool=db_pool)
     except Exception as e:
         logger.error(f"Error starting pipelines: {e}")

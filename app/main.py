@@ -28,18 +28,6 @@ except Exception as e:
     print(f"Error creating database connection pool: {e}")
     os._exit(1)
 
-# Open duckdb connection
-duckdb_conn: duckdb.DuckDBPyConnection
-try:
-    duckdb_conn = duckdb.connect(database=':memory:')
-    logger.info(
-        "DuckDB connection created successfully"
-    )
-except Exception as e:
-    logger.error(f"Error creating DuckDB connection: {e}")
-    print(f"Error creating DuckDB connection: {e}")
-    os._exit(1)
-
 
 # Start program
 def start_program() -> bool:
@@ -51,8 +39,8 @@ def start_program() -> bool:
 def stop_program() -> bool:
     # Close database connection pool
     try:
-        # close_db_pool(db_pool)
-        duckdb_conn.close()
+        close_db_pool(db_pool)
+        duckdb.close()
         logger.info(f"{AppSettings.name} database connection pool closed")
     except Exception as e:
         logger.error(f"Error closing database connection pool: {e}")
@@ -76,8 +64,7 @@ def main_program_loop():
             # Simulate some work
             pipelines.start(
                 base_folder=AppSettings.app_folder,
-                db_pool=db_pool,
-                duckdb_conn=duckdb_conn
+                db_pool=db_pool
             )
             time.sleep(3)
     except KeyboardInterrupt:

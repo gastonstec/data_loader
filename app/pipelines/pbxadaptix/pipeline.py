@@ -4,6 +4,7 @@ from loguru import logger
 from .extract import start as extract_start
 # from .transform import start as transform_start
 from core.utils import list_csv_files
+import duckdb
 
 
 PIPENAME = "gtimpbxadaptix"
@@ -22,7 +23,7 @@ def read_input_files(pipeline_folder: str) -> list[str]:
     return files
 
 
-def start(base_folder, db_pool, duckdb_conn):
+def start(base_folder, db_pool):
     logger.info("Starting GTIM PBX Adaptix pipeline")
     # Create folder structure
     pipeline_folder = f"{base_folder}/{PIPENAME}"
@@ -35,10 +36,9 @@ def start(base_folder, db_pool, duckdb_conn):
         base_folder=base_folder,
         db_pool=db_pool,
         input_files=input_files,
-        duckdb_conn=duckdb_conn
     )
 
-    result = duckdb_conn.execute("SHOW TABLES;").fetchall()
+    result = duckdb.execute("SHOW TABLES;").fetchall()
     print(result)
 
     # Transform data
