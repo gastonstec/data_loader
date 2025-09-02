@@ -27,7 +27,7 @@ class PBXAdaptixService:
         except Exception as e:
             logger.error("Error loading PBX data from CSV file: {}".format(e))
             raise ValueError(e)
-        
+
         # Calculate the number of rows in the DataFrame
         num_rows = len(df)
         logger.info("Number of rows to be loaded: {}".format(num_rows))
