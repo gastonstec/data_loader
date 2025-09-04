@@ -1,8 +1,7 @@
 # app/pipelines/osticket/extract.py
 from loguru import logger
 import duckdb
-
-PIPENAME = "osticket"
+from .pipelineinfo import PIPENAME
 
 
 # Load OSticket data from CSV files
@@ -16,7 +15,7 @@ def load_csv_file(uri: str) -> str:
 
 
 # Start the pipeline
-def start(base_folder, db_pool, input_files) -> list[str]:
+def start(pipeline_folder, db_pool, input_files) -> list[str]:
     try:
         table_list = []
         for uri in input_files:

@@ -26,6 +26,5 @@ class gtim_osticket(BaseModel):
     fecha_creacion_mx: Optional[datetime]
     fecha_cierre_mx: Optional[datetime]
     sla_elapsed_time_minutes: Optional[Decimal]
+    sla_elapsed_time_hours: Optional[Decimal]
     sla_met: Optional[bool]
-    created_at: Optional[datetime]
-    updated_at: Optional[datetime]

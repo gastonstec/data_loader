@@ -2,14 +2,12 @@
 import os
 import duckdb
 from loguru import logger
+
 from .extract import start as extract_start
 from .transform import start as transform_start
-# from .transform import start as transform_start
+from .load import start as load_start
 from core.utils import list_csv_files
-
-
-PIPENAME = "osticket"
-PROCESSED_SUFFIX = ".processed"
+from .pipelineinfo import PIPENAME
 
 
 # Create pipeline folder structure
@@ -41,13 +39,13 @@ def drop_tables(table_list: list[str]):
         duckdb.execute(f"DROP TABLE IF EXISTS {table};")
 
 
-def rename_processed_files(input_files: list[str]) -> list[str]:
+""" def rename_processed_files(input_files: list[str]) -> list[str]:
     renamed_files = []
     for file in input_files:
         new_name = file + PROCESSED_SUFFIX
         os.rename(file, new_name)
         renamed_files.append(new_name)
-    return renamed_files
+    return renamed_files """
 
 
 # Start the pipeline
@@ -66,7 +64,7 @@ def start(base_folder, db_pool) -> bool:
     # Start extraction
     try:
         table_list = extract_start(
-            base_folder=base_folder,
+            pipeline_folder=pipeline_folder,
             db_pool=db_pool,
             input_files=input_files,
         )
@@ -78,8 +76,10 @@ def start(base_folder, db_pool) -> bool:
     # Start transformation
     try:
         transform_start(
+            pipeline_folder=pipeline_folder,
             db_pool=db_pool,
-            table_list=table_list
+            input_files=input_files,
+            table_list=table_list,
         )
     except Exception as e:
         logger.error(f"Error transforming {PIPENAME} data: {e}")
@@ -88,6 +88,12 @@ def start(base_folder, db_pool) -> bool:
     """ Load data section """
     # Start loading
     try:
+        load_start(
+            pipeline_folder=pipeline_folder,
+            db_pool=db_pool,
+            input_files=input_files,
+            table_list=table_list,
+        )
         print(f"Loading {PIPENAME} data to destination")
     except Exception as e:
         logger.error(f"Error loading {PIPENAME} data: {e}")

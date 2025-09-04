@@ -7,9 +7,6 @@ from dbpool import open_db_pool, close_db_pool
 import duckdb
 from pipelines import router as pipelines
 
-import sys
-sys.path.append('/Users/gastonsanchez/Documents/repos/data_loader/app')
-
 
 # Configure logger
 if EnvSettings.env != "dev":
