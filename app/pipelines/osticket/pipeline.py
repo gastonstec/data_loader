@@ -62,6 +62,7 @@ def start(base_folder, db_pool) -> bool:
 
     """ Extract data section """
     # Start extraction
+    table_list = list[str]()
     try:
         table_list = extract_start(
             pipeline_folder=pipeline_folder,
@@ -71,6 +72,8 @@ def start(base_folder, db_pool) -> bool:
     except Exception as e:
         logger.error(f"Error extracting {PIPENAME} data: {e}")
         return False
+    finally:
+        drop_tables(table_list)
 
     """ Transform data section """
     # Start transformation

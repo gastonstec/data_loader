@@ -9,7 +9,11 @@ class AppSettings:
     name: str = "DataLoader"
     version: str = "1.0.0"
     description: str = "Data Loader for GTIM"
-    app_folder: str = "/Users/gastonsanchez/Downloads/dataloader"
+    base_folder: str = "/Users/gastonsanchez/Downloads/dataloader"
+    log_level: str = "INFO"
+    log_folder: str = "/Users/gastonsanchez/Downloads/dataloader/logs"
+    processed_folder: str = "processed"
+    sleep_interval: int = 3  # in seconds
 
 
 # Database settings

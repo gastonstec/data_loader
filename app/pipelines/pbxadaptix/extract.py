@@ -18,8 +18,6 @@ def start(base_folder, db_pool, input_files):
     try:
         for uri in input_files:
             load_csv_file(uri=uri)
-            r2 = duckdb.sql("SHOW ALL TABLES;")
-            print(r2)
     except Exception as e:
         logger.error("Error loading PBX data from CSV file: {}".format(e))
         return None

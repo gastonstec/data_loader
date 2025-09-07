@@ -5,14 +5,21 @@ from core.config import AppSettings, EnvSettings
 from core.database import DBConnectionPool
 from dbpool import open_db_pool, close_db_pool
 import duckdb
-from pipelines import router as pipelines
+from pipelines.pipelines import start as pipelines_start
 
 
 # Configure logger
-if EnvSettings.env != "dev":
+if EnvSettings.env == "dev":
     logger.add(
-        f"{AppSettings.app_folder}/{AppSettings.name}.log",
-        rotation="10 MB"
+        f"{AppSettings.log_folder}/{AppSettings.name}.log",
+        rotation="10 MB",
+        level="DEBUG"
+    )
+else:
+    logger.add(
+        f"{AppSettings.log_folder}/{AppSettings.name}.log",
+        rotation="10 MB",
+        level=AppSettings.log_level
     )
 
 
@@ -48,7 +55,6 @@ def stop_program() -> bool:
 
 # Main program loop
 def main_program_loop():
-    # Start section
     # Start application loop
     try:
         counter = 0
@@ -59,11 +65,11 @@ def main_program_loop():
             )
             # Your actual daemon work here
             # Simulate some work
-            pipelines.start(
-                base_folder=AppSettings.app_folder,
+            pipelines_start(
+                base_folder=AppSettings.base_folder,
                 db_pool=db_pool
             )
-            time.sleep(3)
+            time.sleep(AppSettings.sleep_interval)
     except KeyboardInterrupt:
         print(f"{AppSettings.name} received stop signal")
         logger.info(f"{AppSettings.name} received stop signal")
@@ -71,6 +77,7 @@ def main_program_loop():
         print(f"Unexpected error: {e}")
         logger.error(f"Unexpected error: {e}")
     # End application loop
+
     # Stop section
     try:
         # Close the database connection pool
