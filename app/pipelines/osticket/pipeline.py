@@ -72,8 +72,6 @@ def start(base_folder, db_pool) -> bool:
     except Exception as e:
         logger.error(f"Error extracting {PIPENAME} data: {e}")
         return False
-    finally:
-        drop_tables(table_list)
 
     """ Transform data section """
     # Start transformation

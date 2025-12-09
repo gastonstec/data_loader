@@ -17,6 +17,12 @@ def load_csv_file(uri: str) -> str:
         raise ValueError(e)
 
 
+# Check if the file is valid for processing
+def check_csv_file(table_name: str) -> bool:
+    # Placeholder for file validation logic
+    return True
+
+
 # Start the pipeline
 def start(pipeline_folder, db_pool, input_files) -> list[str]:
     # Create table list

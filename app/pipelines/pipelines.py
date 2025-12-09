@@ -1,10 +1,11 @@
 from loguru import logger
 from .pbxadaptix import pipeline as pbxadaptix_pipeline
-# from .osticket import pipeline as osticket_pipeline
+from .osticket import pipeline as osticket_pipeline
 
 # List of all pipelines
 pipelines_list = [
-    pbxadaptix_pipeline
+    pbxadaptix_pipeline,
+    osticket_pipeline
 ]
 
 
